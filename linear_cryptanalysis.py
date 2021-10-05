@@ -5,22 +5,17 @@
 import SPN as cipher
 from math import trunc, fabs
 import itertools as it
-import collections
-
-# Return bit n from (nibble) bits of bit-length 4
-def getNibbleBit(bits, n):
-    return int(bin(bits)[2:].zfill(4)[n])
-
-# Return bit n from (short) bits of bit-length 16    
-def getShortBit(bits, n):
-    return int(bin(bits)[2:].zfill(16)[n])    
+import collections   
 
 # Build table of input values
 sbox_in = ["".join(seq) for seq in it.product("01", repeat=4)]
+print(sbox_in)  
 # Build a table of output values
 sbox_out = [ bin(cipher.sbox[int(seq,2)])[2:].zfill(4) for seq in sbox_in ]
+print(sbox_out)
 # Build an ordered dictionary between input and output values
 sbox_b = collections.OrderedDict(zip(sbox_in,sbox_out))
+print(sbox_b)
 # Initialise the Linear Approximation Table (LAT)
 probBias = [[0 for x in range(len(sbox_b))] for y in range(len(sbox_b))] 
 
@@ -56,18 +51,6 @@ for bias in probBias:
 # bits that follow the last round.
 
 # Using the LAT, we can construct the following equation that holds with 
-# probability 0.75. Let U_{i} and V_{i} represent the 16-bit block of bits
-# at the input and output of the round i S-Boxes, respectively, and let 
-# K_{i,j} represent the j\'th bit of the subkey block of bits exclusive-ORed
-# at the input to round i. Also let P_{i} represent the i\'th input bit, then
-#
-# U_{4,6}⊕U_{4,8}⊕U_{4,14}⊕U_{4,16}⊕P_{5}⊕P_{7}⊕P_{8}⊕SUM(K) = 0 where
-#
-# SUM(K) = K_{1,5}⊕K_{1,7}⊕K_{1,8}⊕K_{2,6}⊕K_{3,6}⊕K_{3,14}⊕K_{4,6}⊕K_{4,8}⊕K_{4,14}⊕K_{4,16}
-# 
-# holds with a probability of 15/32 (with a bias of 1/32). 
-#
-# Since sum(K) is fixed (by the key, k), U_{4,6}⊕U_{4,8}⊕U_{4,14}⊕U_{4,16}⊕P_{5}⊕P_{7}⊕P_{8} = 0
 # must hold with a probability of either 15/32 or 1-15/32. In other words we
 # now have a linear approximation of the first three rounds of the cipher with
 # a bias of magnitude 1/32.
@@ -85,8 +68,17 @@ print('Testing each target subley value...')
 
 countTargetBias = [0]*256
 
-for pt in range(10000):
-    ct = cipher.encrypt(pt, k)
+# Python code to
+# demonstrate readlines()
+
+
+# Using readlines()
+file1 = open('testData/myfile.txt', 'r')
+Lines = file1.readlines()
+
+for line in Lines:
+    pt = int(line.split(",")[0].strip(),16)
+    ct = int(line.split(",")[1].strip(),16)
     ct_5_8 = (ct>>8)&0b1111
     ct_9_12 = (ct>>4)&0b1111
     
